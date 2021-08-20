@@ -1,0 +1,87 @@
+package com.kuan;
+
+import com.baomidou.mybatisplus.core.conditions.query.Query;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.kuan.mapper.UserMapper;
+import com.kuan.pojo.User;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.Map;
+
+@SpringBootTest
+public class WrapperTest {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Test
+    void contextLoads(){
+        //条件构造器
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper
+                .isNotNull("name")
+                .isNotNull("email")
+                .ge("age",19)
+                .eq("name","测试更新。。。");
+        userMapper.selectList(wrapper).forEach(System.out::println);
+    }
+
+    @Test
+    void test02(){
+        //查询名字
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("name","测试更新。。。");
+        User user = userMapper.selectOne(wrapper);
+        System.out.println(user);
+    }
+
+    @Test
+    void test03(){
+        //查询年龄在20-30之间的用户
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.between("age",20,30);
+        Integer count = userMapper.selectCount(wrapper);
+        System.out.println(count);
+    }
+
+    //模糊查询
+    @Test
+    void test04(){
+        //查询年龄在20-30之间的用户
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        //左和右 %
+        wrapper
+                .notLike("name","e")
+                .likeRight("email","t");
+
+        List<Map<String,Object>> maps = userMapper.selectMaps(wrapper);
+        maps.forEach(System.out::println);
+    }
+
+    //查询
+    @Test
+    void test05(){
+
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+
+        wrapper.inSql("id","select id from user where id<8");
+
+        List<Object> objects = userMapper.selectObjs(wrapper);
+        objects.forEach(System.out::println);
+    }
+
+    //排序
+    @Test
+    void test06(){
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        //通过id进行排序
+        wrapper.orderByDesc("id");
+
+        List<User> users = userMapper.selectList(wrapper);
+        users.forEach(System.out::println);
+    }
+
+}
